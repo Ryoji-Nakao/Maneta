@@ -13,35 +13,38 @@ import java.util.List;
 public class ArticleController {
     private final ArticleService articleService;
 
-    public ArticleController(ArticleService articleService){
+    public ArticleController(ArticleService articleService) {
         this.articleService = articleService;
     }
+
     @GetMapping
-    public ResponseEntity<?> selectArticleAll(){
-        List<ArticleResponse> articles = articleService.selectArticleAll();
+    public ResponseEntity<?> selectArticleAll(@RequestParam(required = false) String tag) {
+        List<ArticleResponse> articles = tag != null
+                ? articleService.selectArticleByTag(tag)
+                : articleService.selectArticleAll();
         return ResponseEntity.ok(articles);
     }
 
     @GetMapping("/{articleId}")
-    public ResponseEntity<?> selectArticleDetail(@PathVariable Long articleId){
+    public ResponseEntity<?> selectArticleDetail(@PathVariable Long articleId) {
         ArticleResponse article = articleService.selectArticleDetail(articleId);
         return ResponseEntity.ok(article);
     }
 
     @PostMapping
-    public ResponseEntity<?> insertArticle(@RequestBody ArticleRequest request){
+    public ResponseEntity<?> insertArticle(@RequestBody ArticleRequest request) {
         ArticleResponse article = articleService.insertArticle(request);
         return ResponseEntity.status(201).body(article);
     }
 
     @PutMapping("/{articleId}")
-    public ResponseEntity<?> updateArticle(@PathVariable Long articleId, @RequestBody ArticleRequest request){
-        ArticleResponse article = articleService.updateArticle(articleId,request);
+    public ResponseEntity<?> updateArticle(@PathVariable Long articleId, @RequestBody ArticleRequest request) {
+        ArticleResponse article = articleService.updateArticle(articleId, request);
         return ResponseEntity.ok(article);
     }
 
     @DeleteMapping("/{articleId}")
-    public ResponseEntity<?> deleteArticle(@PathVariable Long articleId){
+    public ResponseEntity<?> deleteArticle(@PathVariable Long articleId) {
         articleService.deleteArticle(articleId);
         return ResponseEntity.noContent().build();
     }

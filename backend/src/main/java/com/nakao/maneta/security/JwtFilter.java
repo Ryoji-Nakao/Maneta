@@ -16,18 +16,19 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
 
-    public JwtFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl){
+    public JwtFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsServiceImpl) {
         this.jwtUtil = jwtUtil;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")){
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            if(jwtUtil.validateToken(token)) {
+            if (jwtUtil.validateToken(token)) {
                 var username = jwtUtil.extractUsername(token);
                 var userDetails = userDetailsServiceImpl.loadUserByUsername(username);
                 var auth = new UsernamePasswordAuthenticationToken(
@@ -38,6 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 }

@@ -1,12 +1,13 @@
 package com.nakao.maneta.repository;
 
-import com.nakao.maneta.entity.Article;
+import com.nakao.maneta.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Long> {
-    List<Article> findByTagsName(String name);
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+    List<Comment> findByArticleId(Long id);
 }

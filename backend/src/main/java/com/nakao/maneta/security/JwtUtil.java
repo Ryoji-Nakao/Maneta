@@ -18,17 +18,17 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+86400000))
+                .expiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
         return parseToken(token).getPayload().getSubject();
     }
 
-    public boolean validateToken(String token){
-        try{
+    public boolean validateToken(String token) {
+        try {
             parseToken(token);
             return true;
         } catch (Exception e) {
@@ -36,8 +36,8 @@ public class JwtUtil {
         }
     }
 
-    private Jws<Claims> parseToken(String token){
-        return  Jwts.parser()
+    private Jws<Claims> parseToken(String token) {
+        return Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token);
