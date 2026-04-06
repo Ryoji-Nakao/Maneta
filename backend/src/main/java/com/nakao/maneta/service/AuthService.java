@@ -4,6 +4,8 @@ package com.nakao.maneta.service;
 import com.nakao.maneta.dto.request.LoginRequest;
 import com.nakao.maneta.dto.request.RegisterRequest;
 import com.nakao.maneta.entity.User;
+import com.nakao.maneta.exception.ResourceNotFoundException;
+import com.nakao.maneta.exception.UnauthorizedException;
 import com.nakao.maneta.repository.UserRepository;
 import com.nakao.maneta.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,9 +33,9 @@ public class AuthService {
     }
 
     public String login(LoginRequest request) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ResourceNotFoundException("ユーザーが見つかりません"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash()))
-            throw new RuntimeException("パスワードが違います");
+            throw new UnauthorizedException("パスワードが違います");
         return jwtUtil.generateToken(request.getUsername());
     }
 }

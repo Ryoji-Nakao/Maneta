@@ -5,10 +5,11 @@ import com.nakao.maneta.dto.response.ArticleResponse;
 import com.nakao.maneta.entity.Article;
 import com.nakao.maneta.entity.Tag;
 import com.nakao.maneta.entity.User;
+import com.nakao.maneta.exception.ForbiddenException;
+import com.nakao.maneta.exception.ResourceNotFoundException;
 import com.nakao.maneta.repository.ArticleRepository;
 import com.nakao.maneta.repository.TagRepository;
-import com.nakao.maneta.repository.UserRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.nakao.maneta.security.SecurityUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,13 +18,13 @@ import java.util.stream.Collectors;
 @Service
 public class ArticleService {
     private final ArticleRepository articleRepository;
-    private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final SecurityUtil securityUtil;
 
-    public ArticleService(ArticleRepository articleRepository, UserRepository userRepository, TagRepository tagRepository) {
+    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository,SecurityUtil securityUtil) {
         this.articleRepository = articleRepository;
-        this.userRepository = userRepository;
         this.tagRepository = tagRepository;
+        this.securityUtil = securityUtil;
     }
 
     public List<ArticleResponse> selectArticleAll() {
@@ -31,13 +32,12 @@ public class ArticleService {
     }
 
     public ArticleResponse selectArticleDetail(Long articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(() -> new RuntimeException("記事が見つかりません"));
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("記事が見つかりません"));
         return toResponse(article);
     }
 
     public ArticleResponse insertArticle(ArticleRequest request) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+        User user = securityUtil.getCurrentUser();
         var article = new Article();
         article.setUser(user);
         article.setTitle(request.getTitle());
@@ -50,11 +50,10 @@ public class ArticleService {
     }
 
     public ArticleResponse updateArticle(Long articleId, ArticleRequest request) {
-        Article article = articleRepository.findById(articleId).orElseThrow(() -> new RuntimeException("記事が見つかりません"));
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
-        if (!article.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("編集権限がありません");
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("記事が見つかりません"));
+        User user = securityUtil.getCurrentUser();
+        if (!article.getUser().getUsername().equals(user.getUsername())) {
+            throw new ForbiddenException("編集権限がありません");
         }
         article.setTitle(request.getTitle());
         article.setBody(request.getBody());
@@ -66,11 +65,10 @@ public class ArticleService {
     }
 
     public void deleteArticle(Long articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow(() -> new RuntimeException("記事が見つかりません"));
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
-        if (!article.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("削除権限がありません");
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("記事が見つかりません"));
+        User user = securityUtil.getCurrentUser();
+        if (!article.getUser().getUsername().equals(user.getUsername())) {
+            throw new ForbiddenException("削除権限がありません");
         }
         articleRepository.deleteById(articleId);
     }

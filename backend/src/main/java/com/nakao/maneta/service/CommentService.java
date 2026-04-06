@@ -5,10 +5,10 @@ import com.nakao.maneta.dto.response.CommentResponse;
 import com.nakao.maneta.entity.Article;
 import com.nakao.maneta.entity.Comment;
 import com.nakao.maneta.entity.User;
+import com.nakao.maneta.exception.ResourceNotFoundException;
 import com.nakao.maneta.repository.ArticleRepository;
 import com.nakao.maneta.repository.CommentRepository;
-import com.nakao.maneta.repository.UserRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.nakao.maneta.security.SecurityUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final ArticleRepository articleRepository;
-    private final UserRepository userRepository;
+    private final SecurityUtil securityUtil;
 
-    public CommentService(CommentRepository commentRepository, ArticleRepository articleRepository, UserRepository userRepository){
+    public CommentService(CommentRepository commentRepository, ArticleRepository articleRepository, SecurityUtil securityUtil){
         this.commentRepository = commentRepository;
         this.articleRepository = articleRepository;
-        this.userRepository = userRepository;
+        this.securityUtil = securityUtil;
     }
 
     public List<CommentResponse> selectCommentsByArticleId(Long articleId){
@@ -31,9 +31,8 @@ public class CommentService {
     }
 
     public CommentResponse insertComment(Long articleId, CommentRequest request){
-        Article article = articleRepository.findById(articleId).orElseThrow(() -> new RuntimeException("記事が見つかりません"));
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+        Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("記事が見つかりません"));
+        User user = securityUtil.getCurrentUser();
         var comment = new Comment();
         comment.setBody(request.getBody());
         comment.setArticle(article);
