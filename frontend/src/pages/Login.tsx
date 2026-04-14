@@ -7,11 +7,13 @@ function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async () => {
+    setLoading(true)
     try {
       const response = await axiosInstance.post('/api/auth/login', {
         username,
@@ -21,6 +23,8 @@ function Login() {
       navigate('/')
     } catch (e) {
       setError('ユーザー名またはパスワードが違います')
+    } finally {
+      setLoading(false)
     }
   }
 

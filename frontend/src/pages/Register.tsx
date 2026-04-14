@@ -7,10 +7,12 @@ function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
 
   const handleRegister = async () => {
+    setLoading(true)
     try {
       await axiosInstance.post('/api/auth/register', {
         username,
@@ -20,6 +22,8 @@ function Register() {
       navigate('/login')
     } catch (e) {
       setError('登録に失敗しました。入力内容を確認してください')
+    }finally {
+      setLoading(false)
     }
   }
 
@@ -38,7 +42,7 @@ function Register() {
       />
 
       <input
-        type="text"
+        type="email"
         placeholder="メールアドレス"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
