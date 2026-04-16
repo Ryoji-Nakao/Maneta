@@ -1,7 +1,6 @@
 import { useState, useEffect} from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getArticleById, updateArticle } from "../api/articles";
-import type { ArticleRequest } from "../types";
 
 function ArticleEdit() {
     const [title, setTitle] = useState('')
