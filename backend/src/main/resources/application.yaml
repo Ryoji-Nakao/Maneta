@@ -2,14 +2,14 @@ spring:
   application:
     name: maneta
   datasource:
-    url: jdbc:postgresql://localhost:5432/maneta
-    username: admin
-    password: password
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/maneta}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
 jwt:
-  secret: maneta-super-secret-key-please-change-in-production-2026
+  secret: ${JWT_SECRET:maneta-super-secret-key-please-change-in-production-2026}
   expiration: 86400000
