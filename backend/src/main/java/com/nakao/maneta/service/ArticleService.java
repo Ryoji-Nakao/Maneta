@@ -7,10 +7,7 @@ import com.nakao.maneta.entity.Tag;
 import com.nakao.maneta.entity.User;
 import com.nakao.maneta.exception.ForbiddenException;
 import com.nakao.maneta.exception.ResourceNotFoundException;
-import com.nakao.maneta.repository.ArticleRepository;
-import com.nakao.maneta.repository.LikeRepository;
-import com.nakao.maneta.repository.TagRepository;
-import com.nakao.maneta.repository.UserRepository;
+import com.nakao.maneta.repository.*;
 import com.nakao.maneta.security.SecurityUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,13 +22,15 @@ public class ArticleService {
     private final SecurityUtil securityUtil;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
-    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository,SecurityUtil securityUtil, LikeRepository likeRepository, UserRepository userRepository) {
+    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository,SecurityUtil securityUtil, LikeRepository likeRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
         this.securityUtil = securityUtil;
         this.likeRepository = likeRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
     public List<ArticleResponse> selectArticleAll() {
@@ -77,6 +76,7 @@ public class ArticleService {
         if (!article.getUser().getUsername().equals(user.getUsername())) {
             throw new ForbiddenException("削除権限がありません");
         }
+        commentRepository.deleteByArticleId(articleId);
         articleRepository.deleteById(articleId);
     }
 
