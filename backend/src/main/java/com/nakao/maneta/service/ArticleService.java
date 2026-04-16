@@ -11,6 +11,7 @@ import com.nakao.maneta.repository.*;
 import com.nakao.maneta.security.SecurityUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,6 +78,7 @@ public class ArticleService {
             throw new ForbiddenException("削除権限がありません");
         }
         commentRepository.deleteByArticleId(articleId);
+        likeRepository.deleteByArticleId(articleId);
         articleRepository.deleteById(articleId);
     }
 

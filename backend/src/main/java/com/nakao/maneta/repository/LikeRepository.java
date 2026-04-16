@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface LikeRepository extends JpaRepository<Like, LikeId> {
     long countByArticleId(Long articleId);
     boolean existsByArticleIdAndUserId(Long articleId, Long userId);
+    void deleteByArticleId(Long articleId);
 }

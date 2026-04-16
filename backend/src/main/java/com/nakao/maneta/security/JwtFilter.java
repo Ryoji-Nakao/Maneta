@@ -28,12 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            boolean valid = jwtUtil.validateToken(token);
-            System.out.println("=== JWT valid: " + valid + " ===");
-            System.out.println("=== token: " + token.substring(0, 20) + " ===");
-            if (valid) {
+            if (jwtUtil.validateToken(token)) {
                 var username = jwtUtil.extractUsername(token);
-                System.out.println("=== username: " + username + " ===");
                 var userDetails = userDetailsServiceImpl.loadUserByUsername(username);
                 var auth = new UsernamePasswordAuthenticationToken(
                         userDetails,
