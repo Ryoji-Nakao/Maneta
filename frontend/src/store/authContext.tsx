@@ -13,8 +13,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const decodeToken = (token: string): string => {
   const payload = token.split('.')[1]
-  return JSON.parse(atob(payload)).sub
-  }
+  const decoded = decodeURIComponent(
+    atob(payload)
+      .split('')
+      .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join('')
+  )
+  return JSON.parse(decoded).sub
+}
   
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token')
