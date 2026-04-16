@@ -71,6 +71,7 @@ public class ArticleService {
         return toResponse(articleRepository.save(article));
     }
 
+    @Transactional
     public void deleteArticle(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow(() -> new ResourceNotFoundException("記事が見つかりません"));
         User user = securityUtil.getCurrentUser();
