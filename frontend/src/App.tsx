@@ -5,10 +5,12 @@ import Home from './pages/Home'
 import ArticleDetail from './pages/ArticleDetail'
 import ArticleCreate from './pages/ArticleCreate'
 import ArticleEdit from './pages/ArticleEdit'
+import Header from './components/Header'
 
 function App() {
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

@@ -17,4 +17,6 @@ public class ArticleResponse {
     private LocalDateTime updatedAt;
     private String authorUsername;
     private List<String> tagNames;
+    private int likeCount;
+    private boolean likedByMe;
 }

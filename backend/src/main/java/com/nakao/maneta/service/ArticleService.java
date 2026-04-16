@@ -8,8 +8,11 @@ import com.nakao.maneta.entity.User;
 import com.nakao.maneta.exception.ForbiddenException;
 import com.nakao.maneta.exception.ResourceNotFoundException;
 import com.nakao.maneta.repository.ArticleRepository;
+import com.nakao.maneta.repository.LikeRepository;
 import com.nakao.maneta.repository.TagRepository;
+import com.nakao.maneta.repository.UserRepository;
 import com.nakao.maneta.security.SecurityUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,11 +23,15 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final TagRepository tagRepository;
     private final SecurityUtil securityUtil;
+    private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
 
-    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository,SecurityUtil securityUtil) {
+    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository,SecurityUtil securityUtil, LikeRepository likeRepository, UserRepository userRepository) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
         this.securityUtil = securityUtil;
+        this.likeRepository = likeRepository;
+        this.userRepository = userRepository;
     }
 
     public List<ArticleResponse> selectArticleAll() {
@@ -83,6 +90,16 @@ public class ArticleService {
         response.setUpdatedAt(article.getUpdatedAt());
         response.setAuthorUsername((article.getUser().getUsername()));
         response.setTagNames(article.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList()));
+        response.setLikeCount((int) likeRepository.countByArticleId(article.getId()));
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (currentUsername.equals("anonymousUser")){
+            response.setLikedByMe(false);
+        } else {
+            User currentUser = userRepository.findByUsername(currentUsername).orElseThrow(() -> new ResourceNotFoundException("ユーザーが見つかりません"));
+            response.setLikedByMe(
+                    likeRepository.existsByArticleIdAndUserId(article.getId(), currentUser.getId())
+            );
+        }
         return response;
     }
 
